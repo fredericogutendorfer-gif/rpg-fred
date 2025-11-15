@@ -1,34 +1,66 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Mestre - Administração</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+<script type="module">
+  // --- Importações do Firebase ---
+  import { 
+    initializeApp 
+  } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
 
-<h1>Painel do Mestre</h1>
+  import { 
+    getAuth, 
+    onAuthStateChanged 
+  } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
 
-<button onclick="logout()">Sair</button>
+  import {
+    getFirestore,
+    collection,
+    addDoc
+  } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
-<h2> Criar / Editar Boss </h2>
+  // --- Configuração do Firebase ---
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_PROJETO.firebaseapp.com",
+    projectId: "SEU_PROJETO",
+    storageBucket: "SEU_PROJETO.appspot.com",
+    messagingSenderId: "...",
+    appId: "..."
+  };
 
-<input id="bossNome" placeholder="Nome do Boss">
-<input id="bossVida" placeholder="Vida">
-<input id="bossEA" placeholder="Energia Amaldiçoada">
-<textarea id="bossHab" placeholder="Habilidades"></textarea>
+  // Inicialização
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-<button onclick="criarBoss()">Salvar Boss</button>
+  // --- Verificar usuário logado ---
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      alert("Você precisa estar logado!");
+      window.location.href = "index.html";
+      return;
+    }
 
-<hr>
+    // --- Garantir que o mestre é o email mestre@rpg.com ---
+    if (user.email !== "mestre@rpg.com") {
+      alert("Apenas o MESTRE pode acessar esta página.");
+      window.location.href = "index.html";
+      return;
+    }
 
-<h2>Fichas dos Jogadores</h2>
-<div id="listaFichas"></div>
+    console.log("Acesso liberado para o mestre:", user.email);
+  });
 
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-<script src="mestre.js"></script>
+  // --- Exemplo de função para criar um boss ---
+  const formBoss = document.getElementById("form-boss");
 
-</body>
-</html>
+  formBoss?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const nome = document.getElementById("boss-nome").value;
+    const vida = document.getElementById("boss-vida").value;
+
+    await addDoc(collection(db, "bosses"), {
+      nome, vida
+    });
+
+    alert("Boss criado!");
+  });
+</script>
