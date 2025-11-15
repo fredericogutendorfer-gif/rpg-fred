@@ -1,4 +1,4 @@
-const firebaseConfig = {
+const firebaseConfig = YOUR_FIREBASE_CONFIG; {
   apiKey: "...",
   authDomain: "...",
   projectId: "...",
